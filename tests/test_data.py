@@ -106,6 +106,21 @@ def test_csv_test_layout(tmp_path):
     assert D.find_test_set(tmp_path, "A").H_true is not None
 
 
+def test_one_step_initial_condition_may_differ_from_truth():
+    """Material C style: padded H(1) = 0 is given, measured H(1) is not exactly 0."""
+    rng = np.random.default_rng(0)
+    B, H = rng.normal(size=(2, 20)), rng.normal(size=(2, 20))
+    Hp = np.full_like(H, np.nan)
+    Hp[:, 0] = 0.0
+    ts = D.TestSet(B, Hp, np.full(2, 25.0), H)
+    np.testing.assert_array_equal(ts.warmups, [1, 1])
+    Hp2 = H.copy()
+    Hp2[:, 5:] = np.nan
+    Hp2[:, 2] += 1.0                      # a longer warm-up that disagrees is still an error
+    with pytest.raises(ValueError):
+        D.TestSet(B, Hp2, np.full(2, 25.0), H)
+
+
 def test_raw_cache_roundtrip(tmp_path):
     rng = np.random.default_rng(0)
     for k, arr in (("B", rng.normal(size=(2, 50))), ("H", rng.normal(size=(2, 50))), ("T", np.array([[25.0], [70.0]]))):

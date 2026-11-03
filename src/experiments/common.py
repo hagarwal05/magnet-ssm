@@ -8,7 +8,8 @@ from .. import data as D
 from ..evaluate import evaluate_model
 
 SUMMARY_KEYS = ("seq_nrmse_p95", "seq_nrmse_mean", "energy_nrmse", "seq_rms_p95", "seq_rms_mean",
-                "energy_rel_p95", "energy_rel_mean", "n_sequences", "nonfinite_predictions")
+                "energy_rel_p95", "energy_rel_mean", "official_seq_score", "official_energy_score",
+                "n_sequences", "nonfinite_predictions")
 
 
 def score(model, norm, test: D.TestSet, device="cpu", out_dir: Path | None = None) -> dict:

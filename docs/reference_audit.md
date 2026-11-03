@@ -66,7 +66,9 @@ percentile of the second definition.
 What the code does: it reports **both families** for every evaluation (`seq_nrmse_*` and
 `energy_nrmse` follow tutorial-3, `seq_rms_*` and `energy_rel_*` follow grading). The
 tutorial-3 family stays the headline only because it is the one we can verify against
-printed numbers. Any leaderboard comparison should use `seq_rms_p95`. The leaderboard
+printed numbers. Any leaderboard comparison should use `official_seq_score` and
+`official_energy_score` (section 7), which also apply the organizers' per-block
+aggregation. The leaderboard
 energy column needs the `Loss` field (full-excitation core loss), which ships with the
 official test files. Without it, `energy_rel_*` falls back to the segment's own measured
 energy, and the output says so (`energy_rel_denominator`).
@@ -84,7 +86,8 @@ Also from Webinar 6: Material A has 105 training sequences ("tiny data"), Materi
 provides only H(1) = 0 as warm-up ("no past H"), and the warm-ups there are 10/50/90% known
 (100/500/900 steps). The 100/300/500/700/900 mix is the tutorial-3 demo file only. The
 rollout reads the warm-up per sequence, so all of these work, including warm-up = 1 (left
-padding) and warm-up = 0 (zero history).
+padding) and warm-up = 0 (zero history). The A to E ground truth is now committed (section 7),
+so this comparison can be run.
 
 ## 5. Other details confirmed
 
@@ -105,7 +108,39 @@ gate. Our own models are trained with **tied** normalization (mean_out = mean_H,
 std_out = std_H, mean_Scal = mean_B, std_Scal = std_B), so the bug cannot affect them.
 `--convert-feedback` does the conversion explicitly.
 
-## 7. What `PROJECT_CONTEXT.md` says exists but is not in this folder
+## 7. Final-test ground truth (added 2026-11-03, commit 4c3060d)
+
+`data/Evaluation Tools/` (from the "all teams' results" Dropbox folder) holds the A to E
+ground truth and the organizers' scoring script `Evaluation_Read.m`:
+
+| | material | segments | warm-ups | notes |
+|---|---|---|---|---|
+| A | 3C92 | 1,260 | 100 / 500 / 900 (420 each) | "tiny data": 105 training sequences |
+| B | 3C95 | 945 | 100 / 500 / 900 (315 each) | "frequency" challenge |
+| C | FEC007 | 1,116 | 1 | "no past H": padded H(1) = 0 A/m while the measured H(1) is within ±0.21 A/m |
+| D | FEC014 | 1,242 | 100 / 500 / 900 (414 each) | "flux density" challenge |
+| E | T37 | 1,080 | 100 / 500 / 900 (360 each) | "special material" |
+
+All five load through `find_test_set`, with `True_H_seq` and `Loss` present. The
+padded/true consistency check now allows a 1-step warm-up to differ from the measurement
+(Material C), and still rejects any longer mismatch.
+
+`Evaluation_Read.m` settles the aggregation question from section 3. The per-material score
+is MATLAB `prctile(|err|, 95)` **within each warm-up block, averaged over blocks**, not a
+single p95 over all sequences. `metrics.official_score` implements it.
+`results/reference/leaderboard_mc2_per_material.csv` was extracted from
+`data/Result_Final.xlsx`, and its A to E means reproduce the README table within 0.005 for
+31 of 32 teams (Tokyo's C entry is ~1.2e7 %, shown as 800 in the README).
+
+**Grading-path sanity check (not a result of ours).** The upstream tutorial-3 weights
+(2,399 params, trained on 3C90 only) applied zero-shot to A to E score official seq
+99.4 / 63.8 / 58.4 / 86.2 / 145.2 % (mean 90.6 %) and energy mean 18.4 %
+(`results/eval/final_AtoE_tutorial3_weights/`). NTU2 submitted the same architecture trained
+by themselves and scored 75.11 % / 27.43 %. The same order of magnitude is what you'd expect
+for a 3C90-only model, which suggests the grading path is wired correctly. It is not an
+exact cross-check: NTU2's weights are not available.
+
+## 8. What `PROJECT_CONTEXT.md` says exists but is not in this folder
 
 The context says the pipeline, harness, scaffold and an SSM "overfits one batch" already
 exist. This folder contained only `PROJECT_CONTEXT.md`, and no project code or `.h5` data

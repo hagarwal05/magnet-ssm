@@ -93,6 +93,8 @@ def _print_summary(s: dict) -> None:
     print(f"    seq RMS err p95 {s['seq_rms_p95']:7.2f}%   mean {s['seq_rms_mean']:7.2f}%   (grading def.)")
     print(f"    energy rel. p95 {s['energy_rel_p95']:7.2f}%   mean {s['energy_rel_mean']:7.2f}%   "
           f"(grading def., denominator={s['energy_rel_denominator']})")
+    print(f"    OFFICIAL score  seq {s['official_seq_score']:7.2f}%   energy {s['official_energy_score']:7.2f}%   "
+          f"(per-warm-up Hazen p95, mean over blocks; = leaderboard per-material number)")
     for w, v in s["by_warmup"].items():
         print(f"      warm-up {w:4d}: n={v['n']:5d}  mean {v['seq_nrmse_mean']:6.2f}%  p95 {v['seq_nrmse_p95']:6.2f}%")
 

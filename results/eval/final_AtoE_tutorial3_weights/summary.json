@@ -1,0 +1,189 @@
+{
+  "model": "TutorialLSTM",
+  "results": [
+    {
+      "n_sequences": 1260,
+      "seq_nrmse_p95": 123.26636739031507,
+      "seq_nrmse_mean": 50.44971965754491,
+      "seq_nrmse_max": 290.5335438020293,
+      "energy_nrmse": 115.41122042031687,
+      "seq_rms_p95": 99.68827458039722,
+      "seq_rms_mean": 42.34439998115966,
+      "energy_rel_p95": 23.90915701988851,
+      "energy_rel_mean": 7.188426260395084,
+      "energy_rel_denominator": "loss",
+      "official_seq_score": 99.36767493370006,
+      "official_energy_score": 22.699494376977697,
+      "percentile_method": "linear",
+      "by_warmup": {
+        "100": {
+          "n": 420,
+          "seq_nrmse_mean": 52.09248432350298,
+          "seq_nrmse_p95": 114.7589469821942,
+          "seq_rms_p95": 92.85072790181128
+        },
+        "500": {
+          "n": 420,
+          "seq_nrmse_mean": 49.38574844487187,
+          "seq_nrmse_p95": 120.24723786684044,
+          "seq_rms_p95": 97.43885629795896
+        },
+        "900": {
+          "n": 420,
+          "seq_nrmse_mean": 49.87092620425989,
+          "seq_nrmse_p95": 134.06099262587009,
+          "seq_rms_p95": 106.50554880227213
+        }
+      },
+      "material": "3C92",
+      "n_params": 2399,
+      "rollout_seconds": 22.21,
+      "nonfinite_predictions": 0
+    },
+    {
+      "n_sequences": 945,
+      "seq_nrmse_p95": 74.64942099082397,
+      "seq_nrmse_mean": 31.945096792530045,
+      "seq_nrmse_max": 133.5849285784071,
+      "energy_nrmse": 56.28457698405388,
+      "seq_rms_p95": 65.25340114552303,
+      "seq_rms_mean": 27.27248858237373,
+      "energy_rel_p95": 8.65477541444515,
+      "energy_rel_mean": 2.7883885605901066,
+      "energy_rel_denominator": "loss",
+      "official_seq_score": 63.824062117455526,
+      "official_energy_score": 7.865588671282016,
+      "percentile_method": "linear",
+      "by_warmup": {
+        "100": {
+          "n": 315,
+          "seq_nrmse_mean": 33.3638068164322,
+          "seq_nrmse_p95": 67.48849438005914,
+          "seq_rms_p95": 56.590273134982965
+        },
+        "500": {
+          "n": 315,
+          "seq_nrmse_mean": 32.44588530118562,
+          "seq_nrmse_p95": 72.80806555600563,
+          "seq_rms_p95": 58.73369958493514
+        },
+        "900": {
+          "n": 315,
+          "seq_nrmse_mean": 30.0255982599723,
+          "seq_nrmse_p95": 89.08566074428117,
+          "seq_rms_p95": 74.43245435038155
+        }
+      },
+      "material": "3C95",
+      "n_params": 2399,
+      "rollout_seconds": 19.14,
+      "nonfinite_predictions": 0
+    },
+    {
+      "n_sequences": 1116,
+      "seq_nrmse_p95": 71.27070925385053,
+      "seq_nrmse_mean": 27.561837817907254,
+      "seq_nrmse_max": 323.13541020415187,
+      "energy_nrmse": 38.026303885108064,
+      "seq_rms_p95": 58.37923191132291,
+      "seq_rms_mean": 22.67044521442843,
+      "energy_rel_p95": 16.939026479852835,
+      "energy_rel_mean": 5.64931404325035,
+      "energy_rel_denominator": "loss",
+      "official_seq_score": 58.43229699297495,
+      "official_energy_score": 16.970518377879348,
+      "percentile_method": "linear",
+      "by_warmup": {
+        "1": {
+          "n": 1116,
+          "seq_nrmse_mean": 27.561837817907254,
+          "seq_nrmse_p95": 71.27070925385053,
+          "seq_rms_p95": 58.37923191132291
+        }
+      },
+      "material": "FEC007",
+      "n_params": 2399,
+      "rollout_seconds": 30.44,
+      "nonfinite_predictions": 0
+    },
+    {
+      "n_sequences": 1242,
+      "seq_nrmse_p95": 102.66780641149099,
+      "seq_nrmse_mean": 65.73760111191025,
+      "seq_nrmse_max": 341.4182146694565,
+      "energy_nrmse": 59.57064192612012,
+      "seq_rms_p95": 83.57077419800899,
+      "seq_rms_mean": 57.720106624033434,
+      "energy_rel_p95": 29.576005412544465,
+      "energy_rel_mean": 8.366542359841661,
+      "energy_rel_denominator": "loss",
+      "official_seq_score": 86.17286271917709,
+      "official_energy_score": 27.714031694877253,
+      "percentile_method": "linear",
+      "by_warmup": {
+        "100": {
+          "n": 414,
+          "seq_nrmse_mean": 73.27665848363168,
+          "seq_nrmse_p95": 97.3800174065638,
+          "seq_rms_p95": 78.85639416449072
+        },
+        "500": {
+          "n": 414,
+          "seq_nrmse_mean": 67.89795196252815,
+          "seq_nrmse_p95": 100.66920554531627,
+          "seq_rms_p95": 82.20979486489856
+        },
+        "900": {
+          "n": 414,
+          "seq_nrmse_mean": 56.038192889570944,
+          "seq_nrmse_p95": 119.4015640170307,
+          "seq_rms_p95": 96.80881890363922
+        }
+      },
+      "material": "FEC014",
+      "n_params": 2399,
+      "rollout_seconds": 21.97,
+      "nonfinite_predictions": 0
+    },
+    {
+      "n_sequences": 1080,
+      "seq_nrmse_p95": 169.6401049929927,
+      "seq_nrmse_mean": 91.53234204722631,
+      "seq_nrmse_max": 346.5513763492834,
+      "energy_nrmse": 55.50785662637898,
+      "seq_rms_p95": 141.3494808415854,
+      "seq_rms_mean": 78.35610046708746,
+      "energy_rel_p95": 22.79726869717506,
+      "energy_rel_mean": 6.123907902741111,
+      "energy_rel_denominator": "loss",
+      "official_seq_score": 145.2123138799382,
+      "official_energy_score": 16.5234790122922,
+      "percentile_method": "linear",
+      "by_warmup": {
+        "100": {
+          "n": 360,
+          "seq_nrmse_mean": 102.08789074810504,
+          "seq_nrmse_p95": 150.61810297163896,
+          "seq_rms_p95": 124.2067673580802
+        },
+        "500": {
+          "n": 360,
+          "seq_nrmse_mean": 95.43312002251987,
+          "seq_nrmse_p95": 164.077623775913,
+          "seq_rms_p95": 133.4283274111872
+        },
+        "900": {
+          "n": 360,
+          "seq_nrmse_mean": 77.07601537105404,
+          "seq_nrmse_p95": 208.9369207325673,
+          "seq_rms_p95": 174.93890882910816
+        }
+      },
+      "material": "T37",
+      "n_params": 2399,
+      "rollout_seconds": 19.95,
+      "nonfinite_predictions": 0
+    }
+  ],
+  "gate_failures": null
+}
