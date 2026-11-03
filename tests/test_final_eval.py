@@ -47,6 +47,25 @@ def test_official_score_aggregation():
     assert M.official_score(v, w) == pytest.approx(want)
 
 
+@pytest.mark.parametrize("team", ["Hefei", "Gatech", "Cambridge", "SiegenPaderborn"])
+def test_rescoring_submissions_reproduces_published_scores(team):
+    """End-to-end check of the grading path: a team's submitted H_Material {A..E}.csv, scored
+    by our code, must equal the organizers' per-material numbers in Result_Final.xlsx."""
+    _need_data()
+    from src.score_submission import TEAMS_DIR, read_prediction, score_material
+    pred_dir = TEAMS_DIR / team / "Result"
+    try:
+        preds = {L: read_prediction(pred_dir, L) for L in MATERIALS}
+    except FileNotFoundError as e:
+        pytest.skip(str(e))
+    pub = pd.read_csv(ROOT / "results" / "reference" / "leaderboard_mc2_per_material.csv")
+    for L, pred in preds.items():
+        r = score_material(pred, L)
+        p = pub[(pub.team == team) & (pub.material == L)].iloc[0]
+        assert r["seq_score"] == pytest.approx(p.seq_err_p95_pct, rel=1e-4, abs=1e-3), (team, L)
+        assert r["energy_score"] == pytest.approx(p.energy_err_p95_pct, rel=1e-4, abs=1e-3), (team, L)
+
+
 def test_per_material_leaderboard_matches_published_averages():
     table = ROOT / "results" / "reference" / "leaderboard_mc2_per_material.csv"
     df = pd.read_csv(table)

@@ -140,6 +140,18 @@ by themselves and scored 75.11 % / 27.43 %. The same order of magnitude is what 
 for a 3C90-only model, which suggests the grading path is wired correctly. It is not an
 exact cross-check: NTU2's weights are not available.
 
+**Exact cross-check (2026-11-03, commit 15866e7 added `data/Competition Result/`).** Re-scoring
+teams' submitted `H_Material {A..E}.csv` with `src.score_submission` reproduces their
+published per-material scores to 4 decimals for Hefei (seq 9.1727 % / energy 1.5654 % mean),
+Gatech (38.7600 / 7.9701), Cambridge (37.0127 / 9.2391) and SiegenPaderborn
+(20.4316 / 3.4051). Covered by `tests/test_final_eval.py`. Our grading path is therefore
+verified end to end against the organizers' own numbers, not just sanity-checked.
+
+The folder holds 32 teams' predictions (5 x `H_Material *.csv` each, ~2.9 GB in LFS) and
+the organizers' histogram PNGs. Model files over GitHub's limit were not pushed. Only the
+predictions are used. Pull one team with
+`git lfs pull --include="data/Competition Result/<Team>/Result/*"`.
+
 ## 8. What `PROJECT_CONTEXT.md` says exists but is not in this folder
 
 The context says the pipeline, harness, scaffold and an SSM "overfits one batch" already

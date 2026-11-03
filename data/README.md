@@ -35,6 +35,12 @@ Committed so far (commit `4c3060d`, ~250 MB in LFS):
 - `Result_Final.xlsx`: per-team, per-material scores (source of
   `results/reference/leaderboard_mc2_per_material.csv`)
 
+- `Competition Result/<Team>/Result/H_Material {A..E}.csv` (commit `15866e7`, ~2.9 GB):
+  every team's submitted predictions. **Don't `git lfs pull` everything.** Pull a team when
+  you need it: `git lfs pull --include="data/Competition Result/Hefei/Result/*"`. To skip
+  these files on every pull on a machine:
+  `git config lfs.fetchexclude "data/Competition Result/**"`.
+
 Score a model on them:
 `python -m src.evaluate --checkpoint <model.pt> --test-dir "data/Evaluation Tools/Ground Truth Data" --materials 3C92 3C95 FEC007 FEC014 T37`
 
