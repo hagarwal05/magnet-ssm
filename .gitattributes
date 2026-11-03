@@ -1,0 +1,4 @@
+# Everything under data/ is stored with Git LFS (GitHub rejects plain files over 100 MiB).
+# Every machine that adds or pulls data needs git-lfs: install it, then run `git lfs install` once.
+data/** filter=lfs diff=lfs merge=lfs -text
+data/README.md !filter !diff !merge text

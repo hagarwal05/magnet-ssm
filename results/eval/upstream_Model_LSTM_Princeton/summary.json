@@ -1,0 +1,55 @@
+{
+  "model": "TutorialLSTM",
+  "results": [
+    {
+      "n_sequences": 105,
+      "seq_nrmse_p95": 87.60464884749848,
+      "seq_nrmse_mean": 31.60025999163076,
+      "seq_nrmse_max": 145.48973357209874,
+      "energy_nrmse": 85.55016722539834,
+      "seq_rms_p95": 66.56846389161645,
+      "seq_rms_mean": 27.42404256150079,
+      "energy_rel_p95": 477.8789308071493,
+      "energy_rel_mean": 161.29986940048147,
+      "energy_rel_denominator": "segment",
+      "percentile_method": "linear",
+      "by_warmup": {
+        "100": {
+          "n": 21,
+          "seq_nrmse_mean": 32.00034500293564,
+          "seq_nrmse_p95": 50.18572943951074,
+          "seq_rms_p95": 45.35209226197347
+        },
+        "300": {
+          "n": 21,
+          "seq_nrmse_mean": 36.028553321269264,
+          "seq_nrmse_p95": 93.32383836270365,
+          "seq_rms_p95": 75.97601617604283
+        },
+        "500": {
+          "n": 21,
+          "seq_nrmse_mean": 24.738131230594426,
+          "seq_nrmse_p95": 43.21066712972589,
+          "seq_rms_p95": 40.39372631827825
+        },
+        "700": {
+          "n": 21,
+          "seq_nrmse_mean": 29.43423643314515,
+          "seq_nrmse_p95": 56.61178602663522,
+          "seq_rms_p95": 48.94327918522733
+        },
+        "900": {
+          "n": 21,
+          "seq_nrmse_mean": 35.80003397020935,
+          "seq_nrmse_p95": 117.17543588874162,
+          "seq_rms_p95": 112.15648487898645
+        }
+      },
+      "material": "3C90",
+      "n_params": 2399,
+      "rollout_seconds": 4.66,
+      "nonfinite_predictions": 0
+    }
+  ],
+  "gate_failures": null
+}

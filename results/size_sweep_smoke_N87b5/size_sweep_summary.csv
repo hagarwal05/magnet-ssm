@@ -1,0 +1,6 @@
+,,,,seq_nrmse_p95,seq_nrmse_p95,seq_nrmse_p95,seq_rms_p95,seq_rms_p95,seq_rms_p95,energy_nrmse,energy_nrmse,energy_nrmse
+,,,,mean,std,count,mean,std,count,mean,std,count
+material,model,config_id,n_params,,,,,,,,,
+N87,official_lstm,fixed,771,93.36098758992644,,1,77.70411587874037,,1,75.14379326993279,,1
+N87,ssm,d_model4-d_state8-n_layers1,205,284.6860434464708,,1,227.91530544018067,,1,74.73170864670703,,1
+N87,ssm,d_model8-d_state8-n_layers2,745,130.70103623263594,,1,104.79447439836942,,1,75.34752905603281,,1

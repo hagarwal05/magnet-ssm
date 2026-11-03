@@ -1,0 +1,15 @@
+# Data under data/ is committed through Git LFS (see .gitattributes and data/README.md).
+# The HDF5 cache is derived from it and re-created on first load.
+data/cache/
+
+# Reference repo clone (re-create with scripts/fetch_reference.sh)
+third_party/
+
+# Scratch training runs; curated tables/plots live elsewhere under results/
+results/runs/
+
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+.DS_Store

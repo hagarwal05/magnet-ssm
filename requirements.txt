@@ -1,0 +1,6 @@
+torch>=2.2
+numpy>=1.26
+h5py>=3.10
+pandas>=2.1
+matplotlib>=3.8
+pytest>=8

@@ -1,0 +1,55 @@
+{
+  "model": "OfficialLSTM",
+  "results": [
+    {
+      "n_sequences": 105,
+      "seq_nrmse_p95": 655.1213883516152,
+      "seq_nrmse_mean": 170.7484315986163,
+      "seq_nrmse_max": 1221.3008113258472,
+      "energy_nrmse": 81.83521830578007,
+      "seq_rms_p95": 570.262616780447,
+      "seq_rms_mean": 143.41566744071048,
+      "energy_rel_p95": 865.1621014369065,
+      "energy_rel_mean": 322.94323261834126,
+      "energy_rel_denominator": "segment",
+      "percentile_method": "linear",
+      "by_warmup": {
+        "100": {
+          "n": 21,
+          "seq_nrmse_mean": 192.81310081359442,
+          "seq_nrmse_p95": 590.7026585484009,
+          "seq_rms_p95": 486.46421126974565
+        },
+        "300": {
+          "n": 21,
+          "seq_nrmse_mean": 231.3367503879724,
+          "seq_nrmse_p95": 735.7553972620731,
+          "seq_rms_p95": 629.451739337707
+        },
+        "500": {
+          "n": 21,
+          "seq_nrmse_mean": 134.1136989482117,
+          "seq_nrmse_p95": 348.16444234679756,
+          "seq_rms_p95": 291.9254226740206
+        },
+        "700": {
+          "n": 21,
+          "seq_nrmse_mean": 179.5915138125114,
+          "seq_nrmse_p95": 513.3991249338985,
+          "seq_rms_p95": 398.2525196325926
+        },
+        "900": {
+          "n": 21,
+          "seq_nrmse_mean": 115.8870940307916,
+          "seq_nrmse_p95": 567.7317745535748,
+          "seq_rms_p95": 452.24231944792325
+        }
+      },
+      "material": "3C90",
+      "n_params": 771,
+      "rollout_seconds": 3.34,
+      "nonfinite_predictions": 0
+    }
+  ],
+  "gate_failures": null
+}

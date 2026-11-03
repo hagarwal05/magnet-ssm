@@ -1,0 +1,66 @@
+% Workshop-style draft (IEEE TPEL / IEEEtran). Structure only: no results are filled in.
+% Every number must come from results/ tables produced by src/experiments; see docs/reference_audit.md.
+\documentclass[journal]{IEEEtran}
+\usepackage{amsmath,graphicx,booktabs,siunitx}
+
+\title{Small State-Space Models for Transient Magnetic Hysteresis:\\
+Accuracy--Size Trade-off and Cross-Material Generalization}
+\author{Harshil~Agarwal and Mohammad~Nayeem~Teli%
+\thanks{Department of Computer Science, University of Maryland, College Park.}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+TODO after experiments. State: task (MagNet Challenge 2, $H'(t)=f(B,H,B',T)$), model (S4D),
+the two questions, the headline numbers with their metric and test set, and the caveats.
+\end{abstract}
+
+\section{Introduction}
+% Core loss, why transients, MagNet Challenge 2, gap: SSMs barely used by the 32 teams.
+
+\section{Task and Evaluation}
+% 16 MHz sequences, 1000-step segments, variable warm-up read per sequence.
+% Two metric families (docs/reference_audit.md section 3):
+%   tutorial-3: RMSE / mean|H|, energy NRMSE over full span;
+%   grading:    RMS(err) / RMS(H), per-sequence energy error over predicted segment / core loss.
+% Headline = 95th percentile. Leaderboard comparisons only with the grading family on A--E.
+
+\section{Model}
+% Dual input window (B,H) -> pointwise lift -> L x S4D blocks (diagonal SSM, ZOH, S4D-Lin init)
+% -> last-step features ++ [B_next, T] -> MLP. Parameter count formula vs d_model, n_layers.
+% Training: teacher-forced next-step MSE; selection by rollout p95 on validation segments.
+
+\section{Reproduction of the Baseline}
+% Gate: tutorial-3 model (2,399 params) reproduced exactly (33.27 / 16.13 / 39.78).
+% Retrained 771-param dual LSTM on our split as the small-model reference.
+
+\section{RQ1: Accuracy vs. Model Size}
+% Figure: results/size_sweep/error_vs_params_<M>.pdf. Table: size_sweep_summary.csv.
+
+\section{RQ2: Generalization to Unseen Materials}
+% Figure: results/cross_material/cross_material_seq_rms_p95.pdf.
+% Zero-shot vs few-shot fine-tune vs in-domain.
+
+\section{Autoregressive Drift}
+% Figure: drift curves; error vs steps after warm-up, by warm-up length.
+
+\section{Limitations}
+% Subset of materials; own held-out split vs leaderboard A--E; single architecture.
+
+\section{Conclusion}
+
+\bibliographystyle{IEEEtran}
+\begin{thebibliography}{9}
+\bibitem{mc}M. Chen et al., ``MagNet Challenge for data-driven power magnetics modeling,''
+\emph{IEEE Open J. Power Electron.}, 2024, doi: 10.1109/OJPEL.2024.3469916.
+\bibitem{magnetx}S. Wang et al., ``MagNetX: Foundation neural network models for simulating power
+magnetics in transient,'' in \emph{Proc. IEEE APEC}, 2025, pp. 2438--2445.
+\bibitem{magnetxdb}H. Kwon et al., ``MagNetX: Extending the MagNet database for modeling power
+magnetics in transient,'' in \emph{Proc. IEEE APEC}, 2025, pp. 566--572.
+\bibitem{s4d}A. Gu, A. Gupta, K. Goel, and C. R\'e, ``On the parameterization and initialization of
+diagonal state space models,'' in \emph{Proc. NeurIPS}, 2022.
+\bibitem{s4}A. Gu, K. Goel, and C. R\'e, ``Efficiently modeling long sequences with structured state
+spaces,'' in \emph{Proc. ICLR}, 2022.
+\end{thebibliography}
+\end{document}
