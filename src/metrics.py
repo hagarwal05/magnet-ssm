@@ -16,6 +16,10 @@ Pre_Evaluation_Rules.pdf, Test/Error_Distribution_Plot_Template.m)
   * ``energy_relative_error``: per sequence, (integral of dB*H_pred - integral of dB*H_meas)
     over the predicted segment, divided by |integral of dB*H_meas| over the full excitation
     (the file's ``Loss`` field when present, else the measured segment itself).
+  * ``official_score``: how the organizers turn those per-sequence errors into one number per
+    material (data/Evaluation Tools/Evaluation_Read.m): MATLAB ``prctile(|err|, 95)`` within
+    each warm-up block, then the mean over blocks. The leaderboard's "Average 95%" columns are
+    this score averaged over materials A to E.
 
 See docs/reference_audit.md for why both families are reported.
 """
@@ -121,6 +125,15 @@ def summarize(values, method: str = "linear") -> dict:
     }
 
 
+def official_score(values, warmups) -> float:
+    """Evaluation_Read.m aggregation: 95th percentile (MATLAB prctile = Hazen) of |values|
+    within each warm-up block, averaged over blocks."""
+    v = np.abs(np.asarray(values, dtype=np.float64))
+    warmups = np.asarray(warmups).reshape(-1)
+    return float(np.mean([np.percentile(v[warmups == w], PERCENTILE, method="hazen")
+                          for w in np.unique(warmups)]))
+
+
 def drift_curve(H_pred, H_meas, warmups) -> dict:
     """Error growth with horizon: for k steps after the warm-up ends, the mean over sequences
     of |pred - meas| / mean(|meas| over that sequence's predicted region), in percent."""
@@ -168,6 +181,9 @@ def evaluate_predictions(B, H_meas, H_pred, warmups, loss=None, percentile_metho
         "energy_rel_p95": s_ene["p95"],
         "energy_rel_mean": s_ene["mean"],
         "energy_rel_denominator": "loss" if loss is not None else "segment",
+        # leaderboard aggregation (per-block Hazen p95, mean over blocks)
+        "official_seq_score": official_score(seq_rms, warmups),
+        "official_energy_score": official_score(ene_rel, warmups),
         "percentile_method": percentile_method,
         "by_warmup": {},
     }

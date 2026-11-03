@@ -18,7 +18,7 @@ verified against upstream, **including where it differs from the context file**.
 scripts/setup_env.sh                 # venv at ~/.venvs/magnet-ssm (outside OneDrive)
 source ~/.venvs/magnet-ssm/bin/activate
 scripts/fetch_reference.sh           # upstream repo -> third_party/ (pinned commit)
-python -m pytest -q                  # 51 tests, ~30 s on CPU
+python -m pytest -q                  # 60 tests, ~30 s on CPU
 ```
 
 Full data goes under `data/` and is committed through Git LFS (see `data/README.md`).
@@ -89,12 +89,18 @@ Done and verified locally:
 
 - Reproduction gate passes (tutorial-3, 2,399-parameter model; see the audit for why
   this is not the 771-parameter model).
-- All 51 tests pass on CPU, and the SSM overfit test also passes on Apple MPS.
+- All 60 tests pass on CPU, and the SSM overfit test also passes on Apple MPS.
 - End-to-end runs on the small real data that is available without Dropbox (results below).
+
+- The A to E final-test ground truth is committed (LFS) and loads. `official_seq_score` /
+  `official_energy_score` reproduce the organizers' `Evaluation_Read.m` aggregation, and the
+  per-material leaderboard (`results/reference/leaderboard_mc2_per_material.csv`) matches
+  the README averages.
 
 Not done:
 
-- Full training, the RQ1 sweep and RQ2 need the Dropbox raw data and a GPU.
+- Full training, the RQ1 sweep and RQ2 need the raw training sequences (not yet committed)
+  and a GPU.
 - The 771-parameter gate needs normalization files that are not in the upstream repo.
 - No accuracy result exists yet. The numbers below are plumbing checks on tiny data, not findings.
 

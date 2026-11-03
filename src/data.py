@@ -324,7 +324,10 @@ class TestSet:
                 raise ValueError(f"H_true {self.H_true.shape} vs B {self.B.shape}")
             w = self.warmups
             prefix = np.arange(self.B.shape[1])[None, :] < w[:, None]
-            if not np.allclose(self.H_padded[prefix], self.H_true[prefix], rtol=1e-6, atol=1e-6):
+            bad = (prefix & ~np.isclose(self.H_padded, self.H_true, rtol=1e-6, atol=1e-6)).any(axis=1)
+            # A one-step warm-up is a provided initial condition, not a measurement: Material C
+            # (FEC007) gives H(1) = 0 A/m while the measured H(1) is about +/-0.2 A/m.
+            if np.any(bad & (w > 1)):
                 raise ValueError("warm-up prefix of the padded H differs from the true H; "
                                  "are the padded/true files from the same set?")
         if self.loss is not None:

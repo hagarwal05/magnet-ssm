@@ -27,6 +27,19 @@ that pulls the data counts against the download quota. The full dataset is likel
 materials the experiments use rather than the whole Dropbox folder. To pull only some
 data on a machine: `git lfs pull --include="data/raw/3C90/**"`.
 
+Committed so far (commit `4c3060d`, ~250 MB in LFS):
+
+- `Evaluation Tools/Ground Truth Data/Material {A..E} - <name>/`: final-test files for
+  3C92, 3C95, FEC007, FEC014, T37 (padded H, true B/H/T, `Loss`)
+- `Evaluation Tools/Evaluation_Read.m`: the organizers' scoring script
+- `Result_Final.xlsx`: per-team, per-material scores (source of
+  `results/reference/leaderboard_mc2_per_material.csv`)
+
+Score a model on them:
+`python -m src.evaluate --checkpoint <model.pt> --test-dir "data/Evaluation Tools/Ground Truth Data" --materials 3C92 3C95 FEC007 FEC014 T37`
+
+Still needed for training: the raw training sequences (`raw/` below).
+
 ```
 data/
   raw/            # "Training Data": <M>_<i>_B.csv, <M>_<i>_H.csv, <M>_<i>_T.csv, i = 1..7
