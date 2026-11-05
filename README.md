@@ -9,8 +9,10 @@ Research questions: **RQ1**: can an S4D state-space model match accuracy with fa
 parameters (error vs size)? **RQ2**: how well does it generalize to materials it never
 trained on?
 
-Read `PROJECT_CONTEXT.md` for the framing and `docs/reference_audit.md` for what was
-verified against upstream, **including where it differs from the context file**.
+**`docs/RESEARCH_LOG.md` is the master record**: methods, data, evaluation, every
+experiment with its numbers, decisions and caveats, written for the paper. Also see
+`PROJECT_CONTEXT.md` for the framing and `docs/reference_audit.md` for what was verified
+against upstream, **including where it differs from the context file**.
 
 ## Setup
 
