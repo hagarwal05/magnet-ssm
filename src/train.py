@@ -50,6 +50,11 @@ class TrainConfig:
     weight_decay: float = 0.0
     grad_clip: float = 1.0
     h_noise: float = 0.0          # std of Gaussian noise added to the normalized H window
+    # Multi-step (rollout) training. horizon > 1 switches the loss from next-step to a
+    # K-step autoregressive rollout from true history (needs ChunkSet data). With
+    # horizon_warmup_epochs > 0 the horizon ramps linearly from 1 to `horizon`.
+    horizon: int = 1
+    horizon_warmup_epochs: int = 0
     split: tuple = (0.8, 0.1, 0.1)
     seed: int = 1                 # model init / batch order
     split_seed: int = 1           # data split + window sampling (fixed across a sweep)
@@ -60,6 +65,43 @@ class TrainConfig:
     rollout_val_max_seqs: int = 200
     patience: int = 0             # epochs without improvement before stopping; 0 = never
     device: str = "auto"
+
+
+def rollout_loss(model, B_win, B_next, H, T, window: int, k: int, h_noise: float = 0.0) -> torch.Tensor:
+    """Mean squared error of a k-step autoregressive rollout, starting from the true H over
+    the first ``window`` steps of each chunk. Each predicted step is fed back into the H
+    history exactly as ``src.rollout`` does at test time (tied normalization, so ``out`` and
+    ``H`` units coincide). Gradients flow through the whole rollout (BPTT over k steps)."""
+    hist = H[:, :window]
+    if h_noise > 0:
+        hist = hist + h_noise * torch.randn_like(hist)
+    hist = hist.unsqueeze(-1)
+    loss = 0.0
+    for j in range(k):
+        t = window + j
+        y = model(B_win[:, t - window:t].unsqueeze(-1), hist, B_next[:, t:t + 1], T)  # (N, 1)
+        loss = loss + ((y[:, 0] - H[:, t]) ** 2).mean()
+        hist = torch.cat((hist[:, 1:], y.unsqueeze(1)), dim=1)
+    return loss / k
+
+
+def current_horizon(cfg: "TrainConfig", epoch: int) -> int:
+    if cfg.horizon <= 1 or cfg.horizon_warmup_epochs <= 0:
+        return cfg.horizon
+    frac = min(1.0, (epoch + 1) / cfg.horizon_warmup_epochs)
+    return max(1, int(round(1 + frac * (cfg.horizon - 1))))
+
+
+def _chunk_val_loss(model, tensors, window: int, k: int, batch_size: int) -> float:
+    model.eval()
+    total, n = 0.0, 0
+    with torch.no_grad():
+        N = tensors[0].shape[0]
+        for s in range(0, N, batch_size):
+            b = tuple(t[s:s + batch_size] for t in tensors)
+            total += float(rollout_loss(model, *b, window, k)) * b[0].shape[0]
+            n += b[0].shape[0]
+    return total / max(n, 1)
 
 
 def _batched_mse(model, tensors, batch_size) -> float:
@@ -73,17 +115,31 @@ def _batched_mse(model, tensors, batch_size) -> float:
     return total / max(n, 1)
 
 
-def train(cfg: TrainConfig, train_set: D.WindowSet, val_set: D.WindowSet,
-          out_dir: Path, val_segments: Optional[D.TestSet] = None,
+def train(cfg: TrainConfig, train_set, val_set, out_dir: Path,
+          val_segments: Optional[D.TestSet] = None,
           norm: Optional[NormParams] = None, init_state: Optional[dict] = None,
-          meta: Optional[dict] = None, verbose: bool = True) -> dict:
-    """Train one model. Returns a result dict and writes model.pt, history.csv, config.json."""
+          meta: Optional[dict] = None, verbose: bool = True,
+          norm_source: Optional[D.WindowSet] = None) -> dict:
+    """Train one model. Returns a result dict and writes model.pt, history.csv, config.json.
+
+    ``train_set`` / ``val_set`` are WindowSets (next-step loss, ``cfg.horizon == 1``) or
+    ChunkSets (multi-step rollout loss, ``cfg.horizon > 1``). For ChunkSets the normalization
+    is fitted on ``norm_source`` (a WindowSet from the same split) unless ``norm`` is given."""
     seed_everything(cfg.seed)
     device = pick_device(cfg.device)
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    norm = norm or train_set.fit_norm(tie=(cfg.norm_mode == "tied"))
+    multistep = isinstance(train_set, D.ChunkSet)
+    if multistep != (cfg.horizon > 1):
+        raise ValueError(f"horizon={cfg.horizon} needs {'ChunkSet' if cfg.horizon > 1 else 'WindowSet'} data")
+    if norm is None:
+        src = norm_source if multistep else train_set
+        if src is None:
+            raise ValueError("multi-step training needs norm_source (a WindowSet) or an explicit norm")
+        norm = src.fit_norm(tie=(cfg.norm_mode == "tied"))
+    if multistep and cfg.norm_mode != "tied":
+        raise ValueError("multi-step training feeds predictions back, so it requires tied normalization")
     tr = train_set.to_tensors(norm, device)
     va = val_set.to_tensors(norm, device)
     for name, ts in (("train", tr), ("val", va)):
@@ -110,19 +166,26 @@ def train(cfg: TrainConfig, train_set: D.WindowSet, val_set: D.WindowSet,
             g["lr"] = cfg.lr * (cfg.decay_ratio ** (epoch // cfg.decay_epoch))
         model.train()
         run, n = 0.0, 0
-        for sB, sH, bN, T, y in D.iterate_batches(tr, cfg.batch_size, shuffle=True, generator=gen):
-            if cfg.h_noise > 0:
-                sH = sH + cfg.h_noise * torch.randn_like(sH)
+        k = current_horizon(cfg, epoch)
+        for batch in D.iterate_batches(tr, cfg.batch_size, shuffle=True, generator=gen):
             opt.zero_grad()
-            loss = loss_fn(model(sB, sH, bN, T), y)
+            if multistep:
+                loss = rollout_loss(model, *batch, train_set.window, k, h_noise=cfg.h_noise)
+            else:
+                sB, sH, bN, T, y = batch
+                if cfg.h_noise > 0:
+                    sH = sH + cfg.h_noise * torch.randn_like(sH)
+                loss = loss_fn(model(sB, sH, bN, T), y)
             loss.backward()
             if cfg.grad_clip > 0:
                 nn.utils.clip_grad_norm_(model.parameters(), cfg.grad_clip)
             opt.step()
-            run += loss.item() * y.shape[0]
-            n += y.shape[0]
-        row = {"epoch": epoch + 1, "lr": opt.param_groups[0]["lr"], "train_mse": run / n,
-               "val_mse": _batched_mse(model, va, cfg.batch_size)}
+            run += loss.item() * batch[0].shape[0]
+            n += batch[0].shape[0]
+        val = (_chunk_val_loss(model, va, val_set.window, val_set.horizon, cfg.batch_size) if multistep
+               else _batched_mse(model, va, cfg.batch_size))
+        row = {"epoch": epoch + 1, "lr": opt.param_groups[0]["lr"], "horizon": k, "train_mse": run / n,
+               "val_mse": val}
 
         score = row["val_mse"]
         do_rollout = (cfg.rollout_val and val_segments is not None

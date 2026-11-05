@@ -285,6 +285,57 @@ def split_raw(buckets: Sequence[RawBucket], fractions: Sequence[float], seed: in
     return parts
 
 
+@dataclass
+class ChunkSet:
+    """Multi-step training samples: ``window + horizon`` consecutive steps of B and H.
+
+    The model starts from the true H over the first ``window`` steps and predicts the next
+    ``horizon`` steps autoregressively, feeding its own predictions back (``src.train``)."""
+
+    B: np.ndarray       # (N, window + horizon)
+    H: np.ndarray       # (N, window + horizon)
+    T: np.ndarray       # (N,)
+    group: np.ndarray   # (N,) source sequence id
+    window: int
+    horizon: int
+
+    def __len__(self) -> int:
+        return len(self.T)
+
+    def to_tensors(self, norm: NormParams, device="cpu") -> tuple[torch.Tensor, ...]:
+        """(B_win[N,W+K] normalized as B, B_next[N,W+K] normalized as Scal, H[N,W+K] as H,
+        T[N,1]). Callers slice the time axis."""
+        def t(x):
+            return torch.from_numpy(np.ascontiguousarray(x, dtype=np.float32)).to(device)
+        return (t(norm.norm_B(self.B)), t(norm.norm_Scal(self.B)), t(norm.norm_H(self.H)),
+                t(norm.norm_T(self.T)).reshape(-1, 1))
+
+
+def chunks_from_raw(buckets: Sequence[RawBucket], horizon: int, window: int = WINDOW,
+                    per_seq: int = 8, seed: int = 1) -> ChunkSet:
+    """Sample ``per_seq`` chunks of ``window + horizon`` steps uniformly from each sequence."""
+    rng = np.random.default_rng(seed)
+    L = window + horizon
+    Bs, Hs, Ts, Gs = [], [], [], []
+    offs = np.arange(L)[None, :]
+    for b in buckets:
+        lengths = b.valid_lengths()
+        for r in range(len(b.T)):
+            n = int(lengths[r])
+            if n < L:
+                continue
+            starts = rng.integers(0, n - L + 1, size=per_seq)
+            idx = starts[:, None] + offs
+            Bs.append(b.B[r, idx].astype(np.float32))
+            Hs.append(b.H[r, idx].astype(np.float32))
+            Ts.append(np.full(per_seq, b.T[r], dtype=np.float32))
+            Gs.append(np.full(per_seq, b.seq_id[r], dtype=np.int64))
+    if not Bs:
+        raise ValueError(f"no sequence has {L} valid steps")
+    return ChunkSet(np.concatenate(Bs), np.concatenate(Hs), np.concatenate(Ts), np.concatenate(Gs),
+                    window, horizon)
+
+
 def windows_from_raw(buckets: Sequence[RawBucket], window: int = WINDOW, per_seq: int = 64,
                      seed: int = 1) -> WindowSet:
     """Sample ``per_seq`` next-step windows uniformly from each sequence (targets at index
