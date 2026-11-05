@@ -227,26 +227,52 @@ Findings:
   37.0 % (1,182), Gatech 38.8 % (83), Hefei 9.2 % (6,564, winner). We are about 3× from the
   small-model frontier.
 
-### 5.4 Noise-level sweep with multi-step stage, 2026-11-05 **[running]**
+### 5.4 Noise-level sweep with multi-step stage, 2026-11-05 **[result, 1 seed]**
 
-S4D small, one seed, σ ∈ {0.02, 0.05, 0.1}, stage 2 with K = 32. Purpose: pick σ for the
-multi-step 3-seed run, and see whether stage 2 helps. Output: `results/sweep_noise/`.
+S4D small (205 params), one seed, σ ∈ {0.02, 0.05, 0.1}, each followed by stage 2 (K = 32,
+section 4.3). Purpose: pick σ for the 3-seed run, and test stage 2. Source:
+`results/sweep_noise/` (08:22–11:22).
 
-Partial (σ = 0.02, as of 09:00; phase-2 S4D small at σ = 0.05 for reference):
+Official sequence error (%):
 
-| material | A | B | C |
-|---|---|---|---|
-| σ 0.02 + stage 2 (K 32) | 100.0 | **23.1** | 76.9 |
-| phase 2: σ 0.05, no stage 2 | 85.0 | 51.5 | 79.1 |
+| setting | A | B | C | D | E | **mean** | energy |
+|---|---|---|---|---|---|---|---|
+| σ 0.02 + stage 2 | 100.0 | 23.1 | 76.9 | 46.9 | 56.0 | 60.6 | 22.0 |
+| σ 0.05 + stage 2 | 85.0 | 25.7 | 79.1 | 34.6 | 53.0 | 55.5 | 17.4 |
+| **σ 0.1 + stage 2** | 83.7 | 24.0 | 51.7 | 38.5 | 46.0 | **48.8** | **12.3** |
+| phase 2: σ 0.05, stage 1 only (5.3) | 85.0 | 51.5 | 79.1 | 36.2 | 53.0 | 61.0 | 17.0 |
 
-Stage 2 was kept (beat stage 1 on validation) on all three. Material A, stage 2: the
-validation rollout p95 stayed within 117–126 % over all 12 epochs, against 123–435 % swings
-across stage-1 checkpoints. **On A, multi-step training stabilized the rollout but barely
-improved the best checkpoint (123 % → 117 %).** B more than halved, A got worse; σ and
-stage 2 change together here, so the cause is not yet separable. K = 32 is short next to the
-900-step test horizon; longer horizons are a candidate next step.
+Stage 2 was kept on 5 / 5 materials at σ 0.02, 2 / 5 at σ 0.05 (B, D) and 3 / 5 at σ 0.1
+(C, D, E). Per-material keep decisions and validation numbers are in
+`results/sweep_noise/README.md`.
 
-Planned next: 3 seeds × {LSTM 771, S4D 205, S4D 1,001} with the chosen σ and stage 2.
+Findings:
+
+- **The multi-step stage improves the official score, shown in a controlled comparison.**
+  At σ = 0.05 with the same seed as phase 2, the only difference is stage 2. Where stage 2
+  was kept, the test score improved (B 51.5 → 25.7 %, D 36.2 → 34.6 %). Where it was not
+  kept, scores are identical to phase 2 (A, C, E), which confirms the comparison is exact.
+  Mean 61.0 → 55.5 %.
+- **The keep-if-better-on-validation rule produced no test regression** in the controlled
+  comparison.
+- **More noise helped on average** (60.6 → 55.5 → 48.8 %), mostly through C (76.9 → 51.7 %)
+  and E (56.0 → 46.0 %). σ = 0.1 is the largest value tried; the optimum may be higher.
+  **[preliminary]** single seed.
+- Multi-step training stabilizes the validation rollout. Material A, σ 0.02: within
+  117–126 % over all 12 stage-2 epochs, against 123–435 % across stage-1 checkpoints. But
+  stage 2 improves the selected checkpoint by only 3–14 % on validation. K = 32 is short
+  next to the 900-step test horizon.
+- **[caveat]** Validation does not always rank test outcomes. C at σ 0.02: 33.8 %
+  validation, 76.9 % test.
+
+**Decision:** σ = 0.1 + stage 2 for the 3-seed run. Chosen on validation (mean selected
+validation p95 49.9 % vs 52.0 / 59.0 %), not on test; it is also best on test.
+
+### 5.5 Three seeds per model at σ 0.1 + stage 2, 2026-11-05 **[running]**
+
+{S4D small 205, Dual-LSTM 771, S4D medium 1,001} × seeds {1, 2, 3}, setting from 5.4, same
+split. Started 11:31; estimated about 7.5 h (S4D medium dominates). Source:
+`results/seeds3/`; launch script `scripts/runs/seeds3.sh`.
 
 ## 6. Decisions log
 
@@ -261,6 +287,7 @@ Planned next: 3 seeds × {LSTM 771, S4D 205, S4D 1,001} with the chosen σ and s
 | 11-05 | Select checkpoints by validation rollout error, not next-step loss | next-step loss does not predict rollout quality (5.2) |
 | 11-05 | Add H-history noise (phase 2), then multi-step training | phase 1 showed drift dominates |
 | 11-05 | Keep stage 2 only if it beats stage 1 on validation | guard against a regression from the extra stage |
+| 11-05 | σ = 0.1 + stage 2 for the 3-seed run | lowest validation error in the sweep (5.4); chosen without using test scores |
 
 ## 7. Open caveats for the paper
 
