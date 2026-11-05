@@ -2,6 +2,13 @@
 # The HDF5 cache is derived from it and re-created on first load.
 data/cache/
 
+# The full MagNetX Database (~23 GB of zips, ~33 GB of CSV unpacked) never goes into git.
+# Keep it outside the repo (default ~/magnet-data) or here; either way it stays untracked.
+MagNetX Database/
+MagNetX Database.zip
+# Packed copy of the database (src.pack_data, ~5 GB): rebuilt on each machine, not committed.
+data/packed/
+
 # Reference repo clone (re-create with scripts/fetch_reference.sh)
 third_party/
 

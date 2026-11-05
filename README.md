@@ -21,10 +21,15 @@ scripts/fetch_reference.sh           # upstream repo -> third_party/ (pinned com
 python -m pytest -q                  # 64 tests, ~30 s on CPU
 ```
 
-Full data goes under `data/` and is committed through Git LFS (see `data/README.md`).
-Install git-lfs and run `git lfs install` before cloning on a machine that needs the data,
-or run `git lfs pull` after cloning. Without git-lfs, data files arrive as small
-pointer stubs.
+Data (details in `data/README.md`):
+
+- **Reference data in git (LFS):** A–E ground truth, scoring script, leaderboard workbook,
+  team submissions. Install git-lfs and run `git lfs install` before cloning, or
+  `git lfs pull` after. Skip the 2.9 GB of team submissions with
+  `git config lfs.fetchexclude "data/Competition Result/**"`.
+- **Training database (not in git, 23 GB):** download the MagNetX Database from Dropbox on
+  each machine, then `python -m src.pack_data --src <path>/"MagNetX Database"` packs it into
+  `data/packed/` (~5 GB, lossless). Training and experiments use `--raw-dir data/packed`.
 
 ## Correctness gate
 
@@ -66,15 +71,15 @@ docs/                reference audit, paper notes
 
 ```bash
 # Train (any model) on the windowed demo file or on raw sequences (split by sequence)
-python -m src.train --model ssm --d-model 8 --n-layers 2 --raw-dir data/raw --materials 3C90 --rollout-val
+python -m src.train --model ssm --d-model 8 --n-layers 2 --raw-dir data/packed --materials 3C90 --rollout-val
 python -m src.train --model official_lstm --train-h5 third_party/magnetchallenge-2/tutorials/tutorial-1/3C90_Training.h5
 
 # Evaluate a checkpoint on official test files and write submission-style H_<M>.csv
 python -m src.evaluate --checkpoint results/runs/<run>/model.pt --test-dir data/final --materials A B C D E --save-pred
 
 # RQ1 / RQ2
-python -m src.experiments.size_sweep --raw-dir data/raw --materials 3C90 N87 3F4 --preset full --seeds 1 2 3 --device cuda
-python -m src.experiments.cross_material --raw-dir data/raw --sources 3C90 3C94 3F4 N27 N49 N87 \
+python -m src.experiments.size_sweep --raw-dir data/packed --materials 3C90 N87 3F4 --preset full --seeds 1 2 3 --device cuda
+python -m src.experiments.cross_material --raw-dir data/packed --sources 3C90 3C94 3F4 N27 N49 N87 \
     --targets 3E6 77 N30 --d-model 8 --n-layers 2 --seeds 1 2 3 --device cuda
 
 # Figures from any evaluation folder

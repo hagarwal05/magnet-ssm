@@ -1,0 +1,57 @@
+{
+  "train_config": {
+    "model": "ssm",
+    "model_config": {
+      "d_model": 8,
+      "d_state": 8,
+      "n_layers": 2,
+      "head_hidden": 8,
+      "dt_min": 0.01,
+      "dt_max": 0.1,
+      "residual_head": false,
+      "dropout": 0.0
+    },
+    "epochs": 20,
+    "batch_size": 2048,
+    "lr": 0.001,
+    "decay_epoch": 50,
+    "decay_ratio": 0.6,
+    "weight_decay": 0.0,
+    "grad_clip": 1.0,
+    "h_noise": 0.0,
+    "split": [
+      0.8,
+      0.1,
+      0.1
+    ],
+    "seed": 1,
+    "split_seed": 1,
+    "norm_mode": "tied",
+    "windows_per_seq": 64,
+    "rollout_val": false,
+    "rollout_val_every": 10,
+    "rollout_val_max_seqs": 200,
+    "patience": 0,
+    "device": "mps"
+  },
+  "result": {
+    "n_params": 745,
+    "best_epoch": 20,
+    "best_score": 0.4579571632091843,
+    "selection": "val_mse",
+    "train_seconds": 15.343289852142334,
+    "final_val_mse": 0.4579571632091843
+  },
+  "norm": {
+    "mean_B": 0.0007551811421461563,
+    "std_B": 0.12251455964448663,
+    "mean_H": -0.1693595528202496,
+    "std_H": 33.186348164501595,
+    "mean_out": -0.1693595528202496,
+    "std_out": 33.186348164501595,
+    "mean_Scal": 0.0007551811421461563,
+    "std_Scal": 0.12251455964448663,
+    "mean_T": 45.43154761904762,
+    "std_T": 18.066306895048637
+  }
+}

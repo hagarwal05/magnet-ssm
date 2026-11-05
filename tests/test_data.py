@@ -121,6 +121,34 @@ def test_one_step_initial_condition_may_differ_from_truth():
         D.TestSet(B, Hp2, np.full(2, 25.0), H)
 
 
+def test_pack_data_roundtrip(tmp_path):
+    """src.pack_data on a tiny fake MagNetX layout, then loading through load_raw_material."""
+    import zipfile
+    from src import pack_data
+    rng = np.random.default_rng(0)
+    src = tmp_path / "MagNetX Database"
+    (src / "Training Data").mkdir(parents=True)
+    want = {}
+    with zipfile.ZipFile(src / "Training Data" / "N87.zip", "w") as z:
+        for i in (1, 2):
+            B = rng.normal(size=(3, 40)).astype(np.float32).astype(np.float64)
+            H = rng.normal(size=(3, 40)).astype(np.float32).astype(np.float64)
+            T = np.array([[25.0], [50.0], [70.0]])
+            want[i] = (B, H, T)
+            for k, a in zip("BHT", (B, H, T)):
+                z.writestr(f"N87/N87_{i}_{k}.csv", pd.DataFrame(a).to_csv(header=False, index=False, float_format="%.9g"))
+    out = tmp_path / "packed"
+    assert pack_data.main(["--src", str(src), "--out", str(out), "--materials", "N87"]) == 0
+    bks = D.load_raw_material(out, "N87")
+    assert [b.bucket for b in bks] == [1, 2]
+    for b in bks:
+        np.testing.assert_allclose(b.B, want[b.bucket][0], rtol=1e-7)
+        np.testing.assert_allclose(b.H, want[b.bucket][1], rtol=1e-7)
+        np.testing.assert_array_equal(b.T, [25.0, 50.0, 70.0])
+    # resumable: a second run skips the packed material
+    assert pack_data.main(["--src", str(src), "--out", str(out), "--materials", "N87"]) == 0
+
+
 def test_raw_cache_roundtrip(tmp_path):
     rng = np.random.default_rng(0)
     for k, arr in (("B", rng.normal(size=(2, 50))), ("H", rng.normal(size=(2, 50))), ("T", np.array([[25.0], [70.0]]))):

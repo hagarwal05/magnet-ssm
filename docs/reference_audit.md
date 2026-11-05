@@ -152,7 +152,28 @@ the organizers' histogram PNGs. Model files over GitHub's limit were not pushed.
 predictions are used. Pull one team with
 `git lfs pull --include="data/Competition Result/<Team>/Result/*"`.
 
-## 8. What `PROJECT_CONTEXT.md` says exists but is not in this folder
+## 8. The MagNetX Database download (2026-11-05)
+
+Downloaded to the project root as `MagNetX Database/` (git-ignored). It matches its outer zip
+file for file (146 files, identical sizes), and all 10 training zips pass `unzip -t`.
+
+- **Training Data:** per-material zips of `<M>_<i>_{B,H,T}.csv`. 9 materials have all 7
+  frequency buckets; **N49 has buckets 1–5 only** (no 500 / 800 kHz). Values are
+  float32-representable, so `src.pack_data` stores them losslessly as float32 HDF5. N87 was
+  verified bucket by bucket against the CSVs.
+- **Sequence counts are higher than the organizers' slide** for every known material (e.g.
+  3C90 17,269 vs 13,587; 3E6 10,583 vs 7,407). The exception is N49 (7,190 vs 7,266). The
+  slide is dated April 2025 and the zips were re-uploaded on April 8 (N49 on June 11). Use
+  the manifest counts, not the slide.
+- **A–E training:** A has 105 sequences across all 7 buckets, as stated. **B has buckets 1–5
+  only.** B–E counts are a little below the slide (B 6,669 vs 6,758; E 6,445 vs 6,901).
+- **Pretest:** `<M>_Testing_{Padded,True}.h5` for all 10 materials. 6,300 segments each
+  (N49 4,500), warm-ups 100 / 500 / 900, `Loss` included. **No normalization files or model
+  weights**, so the 771-parameter pretest models still can't be gated (section 2). The
+  pretest sets are a second, much larger test set for the known materials (63k segments vs
+  the 105 demo segments).
+
+## 9. What `PROJECT_CONTEXT.md` says exists but is not in this folder
 
 The context says the pipeline, harness, scaffold and an SSM "overfits one batch" already
 exist. This folder contained only `PROJECT_CONTEXT.md`, and no project code or `.h5` data

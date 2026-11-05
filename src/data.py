@@ -226,11 +226,32 @@ def _cached_bucket(files: dict, cache: Optional[Path], material: str, i: int):
     return B, H, T
 
 
+def load_packed_material(path: str | Path, buckets: Optional[Sequence[int]] = None) -> list[RawBucket]:
+    """Load one material packed by ``src.pack_data`` (``train/<M>.h5``)."""
+    path = Path(path)
+    out = []
+    with h5py.File(path, "r") as f:
+        material = str(f.attrs.get("material", path.stem))
+        ids = sorted(int(k.split("_")[1]) for k in f.keys() if k.startswith("bucket_"))
+        for i in (buckets or ids):
+            g = f[f"bucket_{i}"]
+            B, H, T = g["B"][:].astype(np.float64), g["H"][:].astype(np.float64), g["T"][:].astype(np.float64)
+            seq = np.arange(_SEQ_COUNTER[0], _SEQ_COUNTER[0] + len(B))
+            _SEQ_COUNTER[0] += len(B)
+            out.append(RawBucket(material, i, B, H, T, seq))
+    return out
+
+
 def load_raw_material(root: str | Path, material: str, buckets: Optional[Sequence[int]] = None,
                       cache: Optional[str | Path] = None) -> list[RawBucket]:
-    """Load ``<M>_<i>_{B,H,T}.csv`` (optionally ``.csv.gz``) for each bucket found
-    (default 1..7) under ``root``. ``cache``: folder for the HDF5 cache (e.g. data/cache)."""
+    """Load one material's raw training sequences from ``root``, which is either a packed
+    folder (``<root>/train/<M>.h5`` or ``<root>/<M>.h5`` from ``src.pack_data``) or a folder
+    of ``<M>_<i>_{B,H,T}.csv`` (optionally ``.csv.gz``), searched recursively.
+    ``cache``: folder for the CSV -> HDF5 cache (e.g. data/cache); unused for packed data."""
     root = Path(root)
+    for packed in (root / "train" / f"{material}.h5", root / f"{material}.h5"):
+        if packed.exists():
+            return load_packed_material(packed, buckets)
     cache = Path(cache) if cache is not None else None
     out = []
     for i in (buckets or range(1, 8)):
