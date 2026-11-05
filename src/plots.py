@@ -69,9 +69,11 @@ def _save(fig, path: Path):
 def plot_error_vs_params(sweep: pd.DataFrame, out: Path, metric: str = "seq_rms_p95",
                          leaderboard: Optional[pd.DataFrame] = None,
                          test_label: str = "our held-out split",
-                         label_teams: Sequence[str] = ("Hefei", "SiegenPaderborn", "Gatech", "NTU2")) -> None:
-    """RQ1: error vs parameter count (log-log). Leaderboard points are context only and are
-    labelled with their own test set."""
+                         label_teams: Sequence[str] = ("Hefei", "SiegenPaderborn", "Gatech", "NTU2"),
+                         same_test_set: bool = False) -> None:
+    """RQ1: error vs parameter count (log-log). With ``same_test_set=False`` the leaderboard
+    points are context only and the subtitle says so; with True (scored on the official A-E
+    test with the official metric) they are directly comparable."""
     fig, ax = plt.subplots(figsize=(6.4, 5.4))
     if leaderboard is not None and len(leaderboard):
         lb = leaderboard[leaderboard["seq_err_p95_pct"] < 700]  # drop the 800 / 836 placeholders
@@ -98,9 +100,10 @@ def plot_error_vs_params(sweep: pd.DataFrame, out: Path, metric: str = "seq_rms_
     ax.set_yscale("log")
     ax.set_xlabel("Trainable parameters per material")
     ax.set_ylabel("95th-pct sequence error [%]")
+    caveat = ("Same test set and metric as the leaderboard (official A–E, Evaluation_Read.m)."
+              if same_test_set else "Leaderboard and our points use different test sets.")
     _style(ax, "Accuracy vs model size",
-           f"metric: {metric}; markers = mean over seeds, bars = min–max. "
-           "Leaderboard and our points use different test sets.")
+           f"metric: {metric}; markers = mean over seeds, bars = min–max. {caveat}")
     _legend(ax, below=True)
     _save(fig, out)
 

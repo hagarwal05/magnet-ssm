@@ -245,9 +245,11 @@ def prepare_data(cfg: TrainConfig, train_h5: Sequence[Path] = (), raw_dir: Optio
                     val_segments, test_segments, desc)
 
 
-def make_val_segments(buckets: Sequence[D.RawBucket], cfg: TrainConfig) -> D.TestSet:
-    """Rollout-validation segments, capped at ``rollout_val_max_seqs`` (kept warm-up-sorted)."""
-    vs = D.make_test_segments(buckets, seed=cfg.split_seed + 3, name="val")
+def make_val_segments(buckets: Sequence[D.RawBucket], cfg: TrainConfig,
+                      warmups: Sequence[int] = D.DEFAULT_WARMUPS) -> D.TestSet:
+    """Rollout-validation segments, capped at ``rollout_val_max_seqs`` (kept warm-up-sorted).
+    Pass the test set's warm-ups so model selection sees the same regime as the test."""
+    vs = D.make_test_segments(buckets, warmups=warmups, seed=cfg.split_seed + 3, name="val")
     if len(vs) > cfg.rollout_val_max_seqs:
         keep = np.random.default_rng(cfg.split_seed).choice(len(vs), cfg.rollout_val_max_seqs, replace=False)
         keep = keep[np.argsort(vs.warmups[keep], kind="stable")]

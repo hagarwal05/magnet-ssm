@@ -6,8 +6,9 @@ data/cache/
 # Keep it outside the repo (default ~/magnet-data) or here; either way it stays untracked.
 MagNetX Database/
 MagNetX Database.zip
-# Packed copy of the database (src.pack_data, ~5 GB): rebuilt on each machine, not committed.
-data/packed/
+# Packed copy of the database (src.pack_data, ~8 GB): rebuilt on each machine, not committed.
+# No trailing slash: on this Mac data/packed is a symlink to ~/magnet-data/packed.
+data/packed
 
 # Reference repo clone (re-create with scripts/fetch_reference.sh)
 third_party/
