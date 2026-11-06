@@ -1,0 +1,12 @@
+ssm_s_s1               fixed-den p95:  34.1  46.4  51.3  54.7  57.6  ratio 1.69 | median w1 12.9 w9 20.7 | per-win p95 w1 49.8 w9 91.1
+ssm_s_s2               fixed-den p95:  37.5  54.0  59.6  61.3  69.1  ratio 1.84 | median w1 15.7 w9 28.4 | per-win p95 w1 54.4 w9 87.7
+ssm_s_s3               fixed-den p95:  41.6  50.0  54.7  55.4  56.8  ratio 1.36 | median w1 15.5 w9 24.6 | per-win p95 w1 58.1 w9 96.3
+ssm_m_s1               fixed-den p95:  34.0  46.4  52.3  54.5  59.0  ratio 1.73 | median w1 13.1 w9 21.6 | per-win p95 w1 50.7 w9 101.7
+ssm_m_s2               fixed-den p95:  32.5  42.8  48.5  49.9  51.3  ratio 1.58 | median w1 12.1 w9 19.6 | per-win p95 w1 48.3 w9 73.7
+ssm_m_s3               fixed-den p95:  35.4  50.3  61.1  65.6 107.0  ratio 3.03 | median w1 13.8 w9 21.0 | per-win p95 w1 53.6 w9 149.6
+official_lstm_s1       fixed-den p95:  48.6  62.8  65.2  65.2  66.6  ratio 1.37 | median w1 19.6 w9 24.4 | per-win p95 w1 76.7 w9 109.2
+official_lstm_s2       fixed-den p95:  44.6  57.9  58.6  61.5  62.6  ratio 1.40 | median w1 18.0 w9 25.7 | per-win p95 w1 62.0 w9 90.3
+official_lstm_s3       fixed-den p95:  44.7  61.5  67.0  70.4  73.6  ratio 1.65 | median w1 18.7 w9 24.6 | per-win p95 w1 64.7 w9 105.5
+MEAN ssm_s             win1 37.7 win3 50.1 win5 55.2 win7 57.1 win9 61.2  ratio 1.62
+MEAN ssm_m             win1 34.0 win3 46.5 win5 54.0 win7 56.7 win9 72.4  ratio 2.13
+MEAN official_lstm     win1 46.0 win3 60.7 win5 63.6 win7 65.7 win9 67.6  ratio 1.47

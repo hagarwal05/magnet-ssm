@@ -316,6 +316,48 @@ Findings:
 Progress of the S4D small mean across the day: 257.7 % (5.2) → 61.0 % (5.3, noise) →
 52.4 ± 3.3 % (5.5, noise 0.1 + multi-step, 3 seeds).
 
+### 5.6 Within-sequence error vs horizon (diagnosis of 5.5), 2026-11-06 **[result]**
+
+The literature-review team (reviewer-teams) proposed this analysis, and it was reproduced three
+times: by reviewer-teams, the lead and winner-others. No new training. It re-reads the 45
+prediction files from 5.5 and the 14 teams' official submissions. Method and full tables:
+`results/drift/README.md`; code `src/experiments/drift_analysis.py`.
+
+Why it was needed: the official w100 / w500 / w900 blocks are **disjoint sequences**, so flat
+block scores (ours and the top teams') say nothing about how one forecast evolves. On the w100
+block (A, B, D, E), p95 of RMS(err) over each 100-step window / RMS(H_meas) over the predicted
+region:
+
+| source | step 1 | steps 1–10 | window 1 | window 9 | added |
+|---|---|---|---|---|---|
+| Hefei | 6.8 | 5.9 | 6.8 | 11.2 | +4.4 |
+| SiegenPaderborn | 4.7 | 8.4 | 10.5 | 24.6 | +14.0 |
+| Tianjin (closest to our scheme) | 16.7 | 16.0 | 17.2 | 34.5 | +17.4 |
+| **S4D-205 (seed mean)** | **17.8** | **31.8** | **37.7** | **61.2** | **+23.4** |
+| **S4D-1,001 (seed mean)** | **15.7** | **31.1** | **34.0** | **72.4** | **+38.4** |
+| **Dual-LSTM 771 (seed mean)** | **17.8** | **40.5** | **46.0** | **67.6** | **+21.6** |
+
+Findings:
+
+- **One-step error is not the gap:** our first predicted step matches Tianjin's.
+- **Our error doubles within ~10 fed-back steps; Tianjin's does not.** 41–61 % of our window-9
+  gap to Hefei is present by step 10. The rest accrues later: we add 22–38 points, at or above
+  the closed-loop / AR teams and far above the non-AR teams (+2 to +5).
+- **[inferred]** Fast early compounding of fed-back errors (exposure bias) is a main error
+  source, alongside long-horizon accumulation. Neither H-history noise (5.3) nor the K = 32
+  stage (5.4; kept in 34 / 45 runs of 5.5) prevented it. The Tianjin contrast is a single
+  comparison: Tianjin also differs in architecture, loss and augmentation.
+- **The S4D's advantage over the LSTM is mainly early** (window 1: 34–38 vs 46 %). By window 9,
+  S4D-205 leads by about 6 points and S4D-1,001 is behind, driven by seed 3 (107 %).
+- This analysis replaces the earlier reading that "the top teams show no drift", which compared
+  disjoint blocks. Within the same sequences, every top-10 team's error grows over the forecast
+  (1.15–3.7×), least for the non-autoregressive teams.
+
+**Implication:** the top-priority change is to train as we infer: either a non-autoregressive
+whole-sequence S4D, or closed-loop training over a longer horizon, possibly up-weighting the
+first ~10 steps. Studying Tianjin's training is the contrast case
+(`docs/LITERATURE_REVIEW.md` §9).
+
 ## 6. Decisions log
 
 | date | decision | reason |
@@ -330,6 +372,9 @@ Progress of the S4D small mean across the day: 257.7 % (5.2) → 61.0 % (5.3, no
 | 11-05 | Add H-history noise (phase 2), then multi-step training | phase 1 showed drift dominates |
 | 11-05 | Keep stage 2 only if it beats stage 1 on validation | guard against a regression from the extra stage |
 | 11-05 | σ = 0.1 + stage 2 for the 3-seed run | lowest validation error in the sweep (5.4); chosen without using test scores |
+| 11-06 | Literature review by a 6-agent team, every notes file independently fact-checked | `docs/LITERATURE_REVIEW.md`; notes and the 300+-row check log in `docs/lit_notes/` |
+| 11-06 | Diagnose by within-sequence windows, not by warm-up blocks | blocks are disjoint sequences (5.6) |
+| 11-06 | Next priority: train as we infer (non-AR or long closed-loop) | 5.6: early compounding plus long-horizon accumulation; cross-team pattern |
 
 ## 7. Open caveats for the paper
 

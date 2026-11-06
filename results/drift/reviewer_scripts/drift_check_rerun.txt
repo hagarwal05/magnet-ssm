@@ -1,0 +1,16 @@
+(1) window RMS(H_meas) / region RMS, median over sequences, per material (w100 block)
+  A: 0.86 0.86 0.90 0.91 0.93 0.95 0.95 0.91 0.92   mean win1 0.88 win9 0.94
+  B: 0.85 0.86 0.86 0.89 0.88 0.86 0.84 0.86 0.80   mean win1 0.94 win9 0.88
+  D: 0.90 0.86 0.93 0.88 0.94 0.92 0.94 0.94 0.93   mean win1 0.93 win9 0.97
+  E: 0.91 0.90 0.89 0.89 0.85 0.85 0.92 0.88 0.87   mean win1 0.95 win9 0.93
+(2) per-window denominator: median over sequences of window RMS err / window RMS meas, mean over A,B,D,E; and p95
+  Hefei            median win1   3.2 win9   4.0 (1.25x) | p95 win1  12.1 win9  18.3 (1.52x)
+  Fuzhou           median win1   3.0 win9   4.0 (1.31x) | p95 win1  13.1 win9  17.9 (1.36x)
+  SiegenPaderborn  median win1   4.6 win9   8.7 (1.91x) | p95 win1  19.0 win9  45.0 (2.37x)
+  Bristol          median win1   4.4 win9   5.5 (1.25x) | p95 win1  19.6 win9  27.4 (1.40x)
+  Southeast1       median win1   5.3 win9   5.4 (1.03x) | p95 win1  20.0 win9  25.0 (1.25x)
+  Eindhoven        median win1   5.5 win9   6.9 (1.24x) | p95 win1  21.7 win9  26.4 (1.22x)
+  Tsinghua         median win1   4.7 win9   7.6 (1.60x) | p95 win1  23.9 win9  61.3 (2.56x)
+  XJTU1            median win1   4.5 win9  12.0 (2.65x) | p95 win1  18.3 win9  62.2 (3.40x)
+  Sydney           median win1   7.6 win9  13.8 (1.81x) | p95 win1  28.3 win9  59.9 (2.12x)
+  NITC             median win1   4.3 win9  12.2 (2.82x) | p95 win1  18.5 win9  72.3 (3.91x)
