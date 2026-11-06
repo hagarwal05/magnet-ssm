@@ -268,11 +268,53 @@ Findings:
 **Decision:** σ = 0.1 + stage 2 for the 3-seed run. Chosen on validation (mean selected
 validation p95 49.9 % vs 52.0 / 59.0 %), not on test; it is also best on test.
 
-### 5.5 Three seeds per model at σ 0.1 + stage 2, 2026-11-05 **[running]**
+### 5.5 Three seeds per model at σ 0.1 + stage 2, 2026-11-05/06 **[result, 3 seeds]**
 
 {S4D small 205, Dual-LSTM 771, S4D medium 1,001} × seeds {1, 2, 3}, setting from 5.4, same
-split. Started 11:31; estimated about 7.5 h (S4D medium dominates). Source:
-`results/seeds3/`; launch script `scripts/runs/seeds3.sh`.
+split (seeds vary init and batch order). 45 runs, 11:31 → 00:22, including a ~1 h pause with
+the lid closed. Source: `results/seeds3/`; launch script `scripts/runs/seeds3.sh`.
+
+Official sequence error (%):
+
+| model | params | seed 1 | seed 2 | seed 3 | **mean ± sd** | energy mean ± sd | rank / 35 |
+|---|---|---|---|---|---|---|---|
+| S4D medium | 1,001 | 49.0 | 46.8 | 56.6 | **50.8 ± 5.1** | 16.0 ± 0.8 | 19 |
+| S4D small | 205 | 48.8 | 53.2 | 55.2 | **52.4 ± 3.3** | 19.6 ± 6.6 | 21 |
+| Dual-LSTM | 771 | 69.4 | 57.7 | 64.8 | **64.0 ± 5.9** | 14.9 ± 2.5 | 24 |
+
+Paired over the 15 (material, seed) pairs, exact two-sided sign-flip test:
+
+| comparison | seed-mean difference | better on | p |
+|---|---|---|---|
+| S4D small − Dual-LSTM | −11.6 pts | 14 / 15 | 0.0011 |
+| S4D medium − Dual-LSTM | −13.2 pts | 12 / 15 | 0.014 |
+| S4D medium − S4D small | −1.6 pts | 11 / 15 | 0.61 |
+
+Per-material means and spreads are in `results/seeds3/README.md`.
+
+Findings:
+
+- **RQ1 evidence: the S4D beats the matched-recipe LSTM baseline with fewer parameters.**
+  The 205-param S4D is better than the 771-param Dual-LSTM on every seed (by 4.5–20.6 pts)
+  and on 14 / 15 material–seed pairs (p = 0.001), under identical data, training, selection
+  and scoring.
+- **S4D size does not matter in this range:** 1,001 vs 205 params differ by 1.6 pts
+  (p = 0.61).
+- **[caveat] Energy error does not follow sequence error:** the LSTM has the lowest mean
+  energy error (14.9 %) vs 16.0 / 19.6 % for the S4D models. The S4D advantage is on the
+  waveform metric.
+- **Position:** S4D medium 50.8 % ranks 19 / 35; S4D small 52.4 % ranks 21. Both are ahead of
+  NTU2 (75.1 %, 2,399 params), Aalborg2 (59.5 %, 415,753) and ASU (54.1 %, 18,337). The
+  small-model frontier is still about 2.5× better: SiegenPaderborn 20.4 % (325 params),
+  Cambridge 37.0 % (1,182), Gatech 38.8 % (83).
+- **Material A** (~95 training sequences) is the weak point for every model (92–102 %) and
+  the noisiest across seeds.
+- **[caveat] Single-seed numbers overstated the S4D:** the sweep's 48.8 % for S4D small was
+  its best seed; the 3-seed mean is 52.4 %. Seed spread (sd 3–6 pts) is as large as the
+  gains between the sweep settings in 5.4, so those σ differences are not established.
+
+Progress of the S4D small mean across the day: 257.7 % (5.2) → 61.0 % (5.3, noise) →
+52.4 ± 3.3 % (5.5, noise 0.1 + multi-step, 3 seeds).
 
 ## 6. Decisions log
 
@@ -291,7 +333,9 @@ split. Started 11:31; estimated about 7.5 h (S4D medium dominates). Source:
 
 ## 7. Open caveats for the paper
 
-- One seed per configuration so far; seed variance unknown.
+- Seed variance is now measured for one setting (5.5: sd 3–6 pts on the mean). The sweep
+  (5.4) and phases 1–2 are single-seed, so differences smaller than ~6 pts there are not
+  established.
 - Only one training recipe tuned (none of lr, epochs, window budget swept).
 - Model selection uses 200 validation segments; selected-checkpoint transfer to test is
   inconsistent (5.2).

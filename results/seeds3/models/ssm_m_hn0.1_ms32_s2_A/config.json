@@ -1,0 +1,57 @@
+{
+  "train_config": {
+    "model": "ssm",
+    "model_config": {
+      "d_model": 8,
+      "n_layers": 2,
+      "d_state": 16
+    },
+    "epochs": 12,
+    "batch_size": 512,
+    "lr": 0.0003,
+    "decay_epoch": 6,
+    "decay_ratio": 0.6,
+    "weight_decay": 0.0,
+    "grad_clip": 1.0,
+    "h_noise": 0.1,
+    "horizon": 32,
+    "horizon_warmup_epochs": 4,
+    "split": [
+      0.8,
+      0.1,
+      0.1
+    ],
+    "seed": 2,
+    "split_seed": 1,
+    "norm_mode": "tied",
+    "windows_per_seq": 64,
+    "rollout_val": true,
+    "rollout_val_every": 1,
+    "rollout_val_max_seqs": 200,
+    "patience": 0,
+    "device": "mps"
+  },
+  "result": {
+    "n_params": 1001,
+    "best_epoch": 9,
+    "best_score": 104.3079415754997,
+    "selection": "val_rollout_p95",
+    "train_seconds": 353.94941091537476,
+    "final_val_mse": 0.03281620592999279
+  },
+  "norm": {
+    "mean_B": 0.00012076036224527973,
+    "std_B": 0.12459808644247732,
+    "mean_H": -0.15122620615935836,
+    "std_H": 19.07198777120133,
+    "mean_out": -0.15122620615935836,
+    "std_out": 19.07198777120133,
+    "mean_Scal": 0.00012076036224527973,
+    "std_Scal": 0.12459808644247732,
+    "mean_T": 48.82957385242668,
+    "std_T": 18.218240436222008
+  },
+  "material": "A",
+  "protocol": "final_eval",
+  "stage": "multistep"
+}
