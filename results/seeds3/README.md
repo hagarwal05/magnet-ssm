@@ -48,7 +48,7 @@ recipe and selection procedure), so treat p as indicative.
 - **Energy error does not follow:** the LSTM has the lowest mean energy error (14.9 %), S4D
   medium 16.0 %, S4D small 19.6 % with large seed spread (12.3–25.2 %). The S4D advantage is
   on waveform (sequence) error.
-- **Material A (~95 training sequences) is the weak point for every model** (92–102 %) and
+- **Material A (105 training sequences, 98 in our training split) is the weak point for every model** (92–102 %) and
   the noisiest across seeds. B for S4D medium has one outlier seed (50.6 % vs 20.8 / 23.5 %).
 - **Position:** S4D medium 50.8 % ranks 19/35, ahead of UESTC (52.0 %, 5,202 params), ASU
   (54.1 %, 18,337), Aalborg2 (59.5 %, 415,753) and NTU2 (75.1 %, 2,399). Small-model

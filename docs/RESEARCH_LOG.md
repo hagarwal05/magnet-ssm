@@ -122,7 +122,7 @@ scoring script), Webinar-6 slides, `Pre_Evaluation_Rules.pdf`.
 - Splits are **by sequence** (never by window), stratified by frequency bucket.
 - Next-step samples: 80-step windows of B and H, plus the next B, T and the target next H.
   For the A–E protocol, windows are sampled uniformly from each training sequence with a
-  fixed budget of 500,000 windows per material (dense for A's ~95 sequences, sparse for
+  fixed budget of 500,000 windows per material (dense for A's 98 training-split sequences, sparse for
   others).
 - Normalization: z-scoring with statistics fitted on the training split. **Tied** mode
   (ours): the next-B input shares B's statistics and the target shares H's, so predictions
@@ -307,7 +307,7 @@ Findings:
   NTU2 (75.1 %, 2,399 params), Aalborg2 (59.5 %, 415,753) and ASU (54.1 %, 18,337). The
   small-model frontier is still about 2.5× better: SiegenPaderborn 20.4 % (325 params),
   Cambridge 37.0 % (1,182), Gatech 38.8 % (83).
-- **Material A** (~95 training sequences) is the weak point for every model (92–102 %) and
+- **Material A** (105 training sequences, 98 in our training split) is the weak point for every model (92–102 %) and
   the noisiest across seeds.
 - **[caveat] Single-seed numbers overstated the S4D:** the sweep's 48.8 % for S4D small was
   its best seed; the 3-seed mean is 52.4 %. Seed spread (sd 3–6 pts) is as large as the
@@ -386,7 +386,7 @@ first ~10 steps. Studying Tianjin's training is the contrast case
   inconsistent (5.2).
 - Pretest overlap means known-material results need a held-out split we construct ourselves
   (`src.experiments.cross_material` builds one by sequence) for RQ2.
-- Material A has ~95 training sequences; its results carry the largest uncertainty.
+- Material A has 105 training sequences (98 in our training split); its results carry the largest uncertainty.
 - Compute is a laptop GPU; the planned cluster runs may change the time budget per model.
 
 ## 8. Reproducing
