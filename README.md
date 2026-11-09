@@ -202,12 +202,9 @@ predictions go to `--runs`, outside the repo; checkpoints and configs go under
 
 Full list in `docs/RESEARCH_LOG.md` §7.
 
-- Seed variance is measured for one setting only (sd 3–6 pts); single-seed differences
-  smaller than that, from the earlier stages, are not established.
-- One training recipe, not tuned (no sweep of lr, epochs or window budget).
+- Seed variance is measured for one setting only (sd 3–6 pts), so smaller single-seed
+  differences from the earlier stages are not established. One recipe, not tuned.
 - Model selection uses 200 validation segments and transfers to test inconsistently.
-- Material A has 105 training sequences (98 in our split); its results carry the largest
-  uncertainty.
-- The upstream 771-parameter weights have no published normalization file, so that
-  architecture is retrained here as the baseline.
-- Compute so far is a laptop GPU (Apple MPS).
+- Material A has 105 training sequences (98 in our split): the largest uncertainty.
+- The upstream 771-param weights have no published normalization, so we retrain that
+  architecture as the baseline. Compute so far is a laptop GPU (Apple MPS).
