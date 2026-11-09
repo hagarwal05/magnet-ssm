@@ -358,6 +358,49 @@ whole-sequence S4D, or closed-loop training over a longer horizon, possibly up-w
 first ~10 steps. Studying Tianjin's training is the contrast case
 (`docs/LITERATURE_REVIEW.md` §9).
 
+### 5.7 Diagnostics of the compounding mechanism, 2026-11-09 **[result]**
+
+No new training: re-rolled saved checkpoints and re-read saved predictions from 5.2–5.5. Code
+`src/experiments/diagnostics.py`; tables and CSVs in `results/diagnostics/README.md`. Metric as
+in 5.6 (w100 block, A/B/D/E, p95).
+
+**D1, stage 1 vs stage 2 (K = 32), both checkpoints of every seeds3 run.** Steps 1–10, seed
+means: S4D-205 32.3 → 31.8, S4D-1,001 31.6 → 30.3, LSTM 41.0 → 40.4. Window 9: S4D-205 88.4 → 58.6,
+S4D-1,001 79.7 → 58.0, LSTM 72.5 → 67.1. **The multi-step stage does not change early compounding;
+it cuts late accumulation.**
+
+Selection: stage 1 was kept in 11 / 45 runs, and in 7 of those stage 2 scored better on test (worst:
+S4D-1,001 seed 3 B, 50.6 % kept vs 24.6 %). Mean official A–E score with "always stage 2":
+S4D-205 52.2, S4D-1,001 48.9, LSTM 63.1, against 52.4 / 50.8 / 64.0 as kept.
+**[caveat]** Test-set diagnosis of the rule only. The reported 5.5 numbers stay as they are, and
+the rule is changed going forward (decision below).
+
+**D2, noise (saved predictions).** Step-1 p95: σ 0 → 0.05 → 0.1 + stage 2 = S4D-205 11.9 → 12.9 →
+17.5; S4D-1,001 9.6 → 10.0 → 15.6; LSTM 12.4 → 15.4 → 18.9. Without noise the first step beats
+Tianjin (16.7 %), but the rollout explodes (window 9 up to 1,135 %). **Noise trades one-step
+accuracy for stability**, and it reduces steps 1–10 much less than it reduces later windows.
+
+**D3, use of fed-back H (kept stage-2 checkpoints, real test windows).**
+
+- Finite-difference loop gain: shift the whole H window by ε and the next prediction moves by
+  **0.93 ε** for all three models (0.83–0.98 over 36 runs). The last H value alone carries
+  0.27–0.39 ε.
+- Closed-loop offset decay: start a rollout with the history offset by 0.5 sd; the fraction
+  retained after 100 steps is LSTM 0.26, S4D-205 0.51, S4D-1,001 0.60 (0.06 / 0.20 / 0.28
+  after 300 steps).
+- Across runs, gradient sensitivity does not predict the size of the early doubling (Spearman
+  −0.29 to +0.48 within each architecture, n = 12).
+
+Findings:
+
+- **The compounding mechanism is a near-unit feedback gain on fed-back H with slow offset decay**
+  [measured]. The models integrate fed-back H rather than re-deriving H from B. The S4D models
+  carry offsets longest.
+- This strengthens the case for a non-autoregressive model (no feedback path), which also needs
+  no H noise, so it could keep the noise-free 9.6–12.4 % step-1 accuracy [inferred].
+- Anchoring H (fewer fed-back values) and a loss that rewards correcting toward the B-driven value
+  attack the same gain; they are fallbacks if staying autoregressive.
+
 ## 6. Decisions log
 
 | date | decision | reason |
@@ -375,6 +418,8 @@ first ~10 steps. Studying Tianjin's training is the contrast case
 | 11-06 | Literature review by a 6-agent team, every notes file independently fact-checked | `docs/LITERATURE_REVIEW.md`; notes and the 300+-row check log in `docs/lit_notes/` |
 | 11-06 | Diagnose by within-sequence windows, not by warm-up blocks | blocks are disjoint sequences (5.6) |
 | 11-06 | Next priority: train as we infer (non-AR or long closed-loop) | 5.6: early compounding plus long-horizon accumulation; cross-team pattern |
+| 11-09 | Always keep the multi-step stage; drop keep-if-better-on-validation | 5.7: it never hurt steps 1–10, and the 200-segment validation set mis-chose 7 of 11 times |
+| 11-09 | Non-AR S4D first, with no H noise | 5.7: loop gain 0.93 and slow offset decay are the mechanism; noise costs step-1 accuracy |
 
 ## 7. Open caveats for the paper
 
