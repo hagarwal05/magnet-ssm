@@ -54,7 +54,7 @@ def main(argv=None) -> int:
     src.add_argument("--pred-dir", type=Path, help="any folder of H_Material {A..E}.csv")
     ap.add_argument("--name", default=None, help="label for --pred-dir")
     ap.add_argument("--materials", nargs="+", default=list(MATERIALS))
-    ap.add_argument("--tol", type=float, default=0.01, help="max |ours - published| in % points")
+    ap.add_argument("--tol", type=float, default=0.01, help="max |ours - published| in %% points")
     args = ap.parse_args(argv)
 
     pred_dir = TEAMS_DIR / args.team / "Result" if args.team else args.pred_dir
